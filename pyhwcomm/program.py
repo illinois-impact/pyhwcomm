@@ -2,14 +2,12 @@ from __future__ import print_function
 
 
 class Compute:
-    def __init__(self):
-        # self.device =
-        pass
+    def __init__(self, device):
+        self.device = device
 
 
 class Transfer:
     def __init__(self, src, dst, size):
-        # self.src =
-        # self.dst =
-        # self.size =
-        pass
+        self.src = src
+        self.dst = dst
+        self.size = size

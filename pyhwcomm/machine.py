@@ -1,5 +1,6 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 import networkx as nx
+import .program as pg
 
 
 class Storage:
@@ -27,4 +28,18 @@ class Machine:
         self.topology = nx.DiGraph()
 
     def execute(self, program):
-        pass
+        time = 0.0
+        nodes = nx.topological_sort(program)
+        for node in nodes:
+            if type(node) == pg.Compute:
+                pass
+            elif type(node) == pg.Transfer:
+                src = node.src
+                dst = node.dst
+                txSize = node.size
+                path = self.topology[src][dst]
+                time += path.time(txSize)
+            else:
+                print(node)
+                assert False
+        return time

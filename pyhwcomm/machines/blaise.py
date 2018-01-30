@@ -9,6 +9,6 @@ from ..link import PCIe3x16
 class Blaise(Machine):
     def __init__(self):
         self.topology = nx.DiGraph()
-        cpu0 = CPU(0)
-        gpu0 = GPU(0)
-        self.topology.add_edge(cpu0, gpu0, link=PCIe3x16())
+        self.cpu0 = CPU(0)
+        self.gpu0 = GPU(0)
+        self.topology.add_edge(self.cpu0, self.gpu0, link=PCIe3x16())

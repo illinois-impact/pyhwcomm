@@ -5,15 +5,17 @@
 import networkx as nx
 
 from pyhwcomm import Compute, Transfer
+from pyhwcomm.machines.blaise import Blaise
 
 
 def test_success():
     assert True
 
 
-def test_simple():
-
+def test_blaise():
+    c = Blaise()
     p = nx.DiGraph()
-    p.add_edge(Compute(), Transfer(0, 0, 0))
+    p.add_edge(Compute(c.cpu0), Transfer(c.cpu0, c.gpu0, 1000))
+    c.execute(p)
 
     assert True
