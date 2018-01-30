@@ -14,7 +14,6 @@ def test_success():
 def test_simple():
 
     p = nx.DiGraph()
-    p.add_node(Compute())
-    p.add_node(Transfer())
+    p.add_edge(Compute(), Transfer(0, 0, 0))
 
     assert True
