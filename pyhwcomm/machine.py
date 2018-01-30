@@ -24,7 +24,10 @@ class Data:
 
 class Machine:
     def __init__(self):
-        return
+        pass
 
     def estimate_time(self, src, dst):
-        return
+        pass
+
+    def execute(self, program):
+        pass
