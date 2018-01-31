@@ -12,6 +12,9 @@ class Compute:
         self.device = device
         self.parameters = None  # flops, reads, threads
 
+    def __str__(self):
+        return "Compute{device:" + str(self.device) + "}"
+
 
 class Transfer:
     def __init__(self, size, src=None, dst=None):
@@ -20,5 +23,5 @@ class Transfer:
         self.size = size
 
     def __str__(self):
-        return str(self.src) + "--" + \
-            str(self.size) + "--" + str(self.dst)
+        return "Transfer{src:" + str(self.src) + \
+            ", dst:" + str(self.dst) + ", size:" + str(self.size) + "}"

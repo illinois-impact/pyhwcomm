@@ -41,8 +41,9 @@ class AssignValuesBySuccessor(Transform):
         out = g.copy()
         for node in out:
             if isinstance(node, pgm.Value):
-                if out.out_degree(node) > 0:
-                    node.device = list(g.successors(node))[0].device
+                if not node.device:
+                    if out.out_degree(node) > 0:
+                        node.device = list(g.successors(node))[0].device
         return out
 
 

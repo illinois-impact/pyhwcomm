@@ -134,7 +134,7 @@ setup(
     # projects.
     extras_require={  # Optional
         'dev': ['check-manifest'],
-        'test': ['coverage', 'matplotlib'],
+        'test': ['coverage'],
     },
 
     # If there are data files included in your packages that need to be
