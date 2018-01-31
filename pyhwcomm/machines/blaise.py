@@ -12,3 +12,4 @@ class Blaise(Machine):
         self.cpu0 = CPU(0)
         self.gpu0 = GPU(0)
         self.topology.add_edge(self.cpu0, self.gpu0, link=PCIe3x16())
+        self.topology.add_edge(self.gpu0, self.cpu0, link=PCIe3x16())
