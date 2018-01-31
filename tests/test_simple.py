@@ -9,7 +9,7 @@ import networkx as nx
 from pyhwcomm import Compute, Transfer
 from pyhwcomm.machines.blaise import Blaise
 from pyhwcomm.scheduler import TrivialScheduler
-import pyhwcomm.program as pgm
+from pyhwcomm.programs.vecaddstream import VecAddStream
 
 
 def test_success():
@@ -18,26 +18,8 @@ def test_success():
 
 def test_scheduler():
     c = Blaise()
-
-    i0p0 = pgm.Value(100)
-    i1p0 = pgm.Value(100)
-    i0p1 = pgm.Value(100)
-    i1p1 = pgm.Value(100)
-    op0 = pgm.Value(100)
-    op1 = pgm.Value(100)
-    k0 = pgm.Compute()
-    k1 = pgm.Compute()
-    vecAddStream = nx.DiGraph()
-    vecAddStream.add_edge(i0p0, k0)
-    vecAddStream.add_edge(i1p0, k0)
-    vecAddStream.add_edge(k0, op0)
-    vecAddStream.add_edge(i0p1, k1)
-    vecAddStream.add_edge(i1p1, k1)
-    vecAddStream.add_edge(k1, op1)
-
     s = TrivialScheduler()
-    p = s(vecAddStream, c)
-
+    p = s(VecAddStream, c)
     c.execute(p)
 
     assert True
