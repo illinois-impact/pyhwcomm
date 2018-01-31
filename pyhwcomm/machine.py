@@ -38,7 +38,6 @@ class Machine:
                 dst = node.dst
                 txSize = node.size
                 link = self.topology[src][dst]['link']
-                print(link)
                 time += link.time(txSize)
             else:
                 print(node)
