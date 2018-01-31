@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function
 import networkx as nx
-import .program as pg
+import pyhwcomm.program as pg
 
 
 class Storage:
@@ -31,14 +31,15 @@ class Machine:
         time = 0.0
         nodes = nx.topological_sort(program)
         for node in nodes:
-            if type(node) == pg.Compute:
+            if isinstance(node, pg.Compute):
                 pass
-            elif type(node) == pg.Transfer:
+            elif isinstance(node, pg.Transfer):
                 src = node.src
                 dst = node.dst
                 txSize = node.size
-                path = self.topology[src][dst]
-                time += path.time(txSize)
+                link = self.topology[src][dst]['link']
+                print(link)
+                time += link.time(txSize)
             else:
                 print(node)
                 assert False
