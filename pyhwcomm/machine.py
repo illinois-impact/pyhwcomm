@@ -4,10 +4,10 @@ import pyhwcomm.program as pg
 
 
 class Storage:
-    def __init__(self):
-        pass
+    def __init__(self, size):
+        self.size = size
     
-    def local_storage(self):
+    def size(self):
         raise NotImplementedError
 
 
@@ -24,14 +24,14 @@ class Processor:
 
 
 class CPU(Processor, Storage):
-    def __init__(self, device):
+    def __init__(self, device, size):
+        Storage.__init__(self, size)
         self.device = device
 
 
-class GPU(Processor, Storage):
+class GPU(Processor):
     def __init__(self, device):
         Processor.__init__(self)
-        Storage.__init__(self)
         self.device = device
 
 
@@ -40,8 +40,18 @@ class NVIDIAP100(GPU):
     def __init__(self):
         GPU.__init__(self)
 
-    def local_storage(self):
-        return 16 * 1024 * 1024 * 1024
+
+class NvidiaTitanXp(GPU):
+    def __init__(self, device):
+        GPU.__init__(self, device)
+
+
+class GDDR5X(Storage):
+    pass
+
+
+class HBM2(Storage):
+    pass
 
 
 class Machine:

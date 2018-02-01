@@ -35,3 +35,10 @@ class QPI48(Link):
 
     def latency(self, txSize):
         return 0.0
+
+
+class NvidiaTitanXpLink(Link):
+    def bandwidth(self, txSize):
+        return 547.7 * 1024 * 1024 * 1024
+    def latency(self, txSize):
+        return 0.0
