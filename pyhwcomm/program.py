@@ -10,10 +10,19 @@ class Value:
 class Compute:
     def __init__(self, device=None):
         self.device = device
+        self.known_run_times = {}
         self.parameters = None  # flops, reads, threads
 
     def __str__(self):
         return "Compute{device:" + str(self.device) + "}"
+
+    def known_run_time(self, processor):
+        """returns a known time for a computation to run on a particular processor"""
+        for proc, time in self.known_run_times:
+            if isinstance(proc, processor):
+                return time
+        return None
+
 
 
 class Transfer:

@@ -6,21 +6,42 @@ import pyhwcomm.program as pg
 class Storage:
     def __init__(self):
         pass
+    
+    def local_storage(self):
+        raise NotImplementedError
 
 
-class Compute:
+class Processor:
     def __init__(self):
         pass
 
+    def time(self, workload):
+        knownTime = workload.known_run_time(self)
+        if knownTime:
+            return knownTime
+        else:
+            return 0
 
-class CPU(Compute, Storage):
+
+class CPU(Processor, Storage):
     def __init__(self, device):
         self.device = device
 
 
-class GPU(Compute, Storage):
+class GPU(Processor, Storage):
     def __init__(self, device):
+        Processor.__init__(self)
+        Storage.__init__(self)
         self.device = device
+
+
+class NVIDIAP100(GPU):
+    """An NVIDIA P100 GPU"""
+    def __init__(self):
+        GPU.__init__(self)
+
+    def local_storage(self):
+        return 16 * 1024 * 1024 * 1024
 
 
 class Machine:
