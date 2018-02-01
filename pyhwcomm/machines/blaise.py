@@ -24,6 +24,6 @@ class Blaise(Machine):
 
 
 class BlaiseEmpirical(Machine):
-    """BlaiseEmpirical is a model for the empirical performance of blaise""" 
+    """BlaiseEmpirical is a model for the empirical performance of blaise"""
     def __init__(self):
         raise NotImplementedError
