@@ -7,6 +7,7 @@ from ..link import PCIe3x16, NvidiaTitanXpLink
 
 
 class Blaise(Machine):
+    """Blaise is a model for the theoretical performance of blaise"""
     def __init__(self):
         self.topology = nx.DiGraph()
         self.cpu0 = CPU(0, 24 * 1024 * 1024 * 1024)
@@ -20,3 +21,9 @@ class Blaise(Machine):
         # GPU internal links
         self.topology.add_edge(self.gpu0, self.gpu0mem, link=NvidiaTitanXpLink())
         self.topology.add_edge(self.gpu0mem, self.gpu0, link=NvidiaTitanXpLink())
+
+
+class BlaiseEmpirical(Machine):
+    """BlaiseEmpirical is a model for the empirical performance of blaise""" 
+    def __init__(self):
+        raise NotImplementedError
