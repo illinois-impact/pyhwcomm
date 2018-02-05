@@ -37,8 +37,8 @@ class GPU(Processor):
 
 class NVIDIAP100(GPU):
     """An NVIDIA P100 GPU"""
-    def __init__(self):
-        GPU.__init__(self)
+    def __init__(self, device):
+        GPU.__init__(self, device)
 
 
 class NvidiaTitanXp(GPU):
@@ -54,9 +54,33 @@ class HBM2(Storage):
     pass
 
 
+class MachineView:
+    def __getitem__(self, key):
+        raise NotImplementedError
+
+class CPUView(MachineView):
+    def __init__(self):
+        self.dict = {}
+    def __getitem__(self, key):
+        return self.dict[key]
+
 class Machine:
     def __init__(self):
         self.topology = nx.DiGraph()
+
+    def cuda_gpu(self):
+        devices = {}
+        for node in self.topology:
+            if isinstance(node, GPU):
+                devices[node.device] = node
+        return devices
+
+    def cpu(self):
+        cpus = {}
+        for node in self.topology:
+            if isinstance(node, CPU):
+                cpus[node.device] = node
+        return cpus
 
     def execute(self, program):
         time = 0.0
