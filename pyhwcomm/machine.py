@@ -20,7 +20,7 @@ class Processor:
         if knownTime:
             return knownTime
         else:
-            return 0
+            return 0.0
 
 
 class CPU(Processor, Storage):
@@ -81,6 +81,9 @@ class Machine:
             if isinstance(node, CPU):
                 cpus[node.device] = node
         return cpus
+
+    def all_paths(self, src, dst):
+        return nx.all_simple_paths(self.topology, src, dst)
 
     def execute(self, program):
         time = 0.0

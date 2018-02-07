@@ -5,103 +5,17 @@ and produce a concrete program
 
 from __future__ import print_function
 
-# import networkx as nx
-
+import networkx as nx
 import pyhwcomm.program as pgm
+import pyhwcomm.transforms as pt
 # import pyhwcomm.machine as mchn
 
-
-class Transform:
-    """Transform a graph"""
-    pass
-
-
-class AssignSinks(Transform):
-    """Assign sinks to device"""
-    def __call__(self, g, dev):
-        out = g.copy()
-        for node, outDegree in g.out_degree():
-            if outDegree == 0:
-                node.device = dev
-        return out
-
-
-class AssignSources(Transform):
-    """Assign sources to device"""
-    def __call__(self, g, dev):
-        out = g.copy()
-        for node, inDegree in g.in_degree():
-            if inDegree == 0:
-                node.device = dev
-        return out
-
-
-class AssignValuesBySuccessor(Transform):
-    def __call__(self, g):
-        out = g.copy()
-        for node in out:
-            if isinstance(node, pgm.Value):
-                if not node.device:
-                    if out.out_degree(node) > 0:
-                        node.device = list(g.successors(node))[0].device
-        return out
-
-
-class AssignKernels(Transform):
-    """Assign kernels to device"""
-    def __call__(self, g, device):
-        out = g.copy()
-        for node in out:
-            if isinstance(node, pgm.Compute):
-                node.device = device
-        return out
-
-
-class InsertTransfers(Transform):
-    def __call__(self, g):
-        out = g.copy()
-        newTxs = []
-        for node in out:
-            for pred in out.predecessors(node):
-                if pred.device != node.device:
-                    if isinstance(pred, pgm.Value):
-                        newTxs += [(pred, node, pgm.Transfer(
-                            pred.size, pred.device, node.device))]
-                    elif isinstance(node, pgm.Value):
-                        newTxs += [(pred, node, pgm.Transfer(
-                            node.size, pred.device, node.device))]
-                    else:
-                        assert False
-        for tup in newTxs:
-            pred, node, tx = tup
-            out.add_edge(pred, tx)
-            out.add_edge(tx, node)
-        return out
-
-
-class RemoveValues(Transform):
-    def __call__(self, g):
-        out = g.copy()
-        toRemove = []
-        for node in out:
-            if isinstance(node, pgm.Value):
-                toRemove += [node]
-
-        for node in toRemove:
-            preds = out.predecessors(node)
-            succs = out.successors(node)
-            for p in preds:
-                for s in succs:
-                    out.add_edge(p, s)
-            out.remove_node(node)
-
-        return out
+import pycprof.dom
 
 
 class Scheduler:
     def __init__(self):
         pass
-
 
 class TrivialScheduler(Scheduler):
     """TrivialScheduler assigns everything to device 0"""
@@ -109,11 +23,51 @@ class TrivialScheduler(Scheduler):
         Scheduler.__init__(self)
 
     def __call__(self, program, machine):
-        p = AssignSinks()(program, machine.cpu0)
-        p = AssignSources()(p, machine.cpu0)
-        p = AssignKernels()(p, machine.gpu0)
-        p = AssignValuesBySuccessor()(p)
-        p = InsertTransfers()(p)
-        p = RemoveValues()(p)
+        p = pt.AssignSinks()(program, machine.cpu0)
+        p = pt.AssignSources()(p, machine.cpu0)
+        p = pt.AssignKernels()(p, machine.gpu0)
+        p = pt.AssignValuesBySuccessor()(p)
+        p = pt.InsertTransfers()(p)
+        p = pt.RemoveValues()(p)
         concrete = p
         return concrete
+
+class GreedyScheduler(Scheduler):
+    """GreedyScheduler assigns everything to the earliest available hardware"""
+    def __init__(self):
+        Scheduler.__init__(self)
+
+    def __call__(self, program, machine):
+
+        out = program.copy()
+
+        computes = {}
+        engines = {}
+        links = {}
+        for i, gpu in machine.cuda_gpu():
+            computes[gpu] = 0.0
+            engines[gpu] = 0.0
+
+        for n in nx.topological_sort(program):
+            if isinstance(n, program.Compute):
+                for i, gpu in machine.cuda_gpu():
+                    # figure out how long it would take to get the input data to each gpu
+                    for input_value in program.predecessors(n):
+
+                        
+
+                        assert isinstance(input_value, pycprof.dom.Value)
+
+
+
+                        paths = machine.all_paths(src, dst)
+                        for path in paths:
+                            path.
+
+
+
+                first_compute = min(computes, key=computes.get)
+                computes[first_compute] += first_compute.time(n)
+
+
+
