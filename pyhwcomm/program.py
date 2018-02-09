@@ -1,10 +1,12 @@
 from __future__ import print_function
 
+import networkx as nx
 
 class Value:
     """A value in memory"""
-    def __init__(self, size):
+    def __init__(self, size, device):
         self.size = size
+        self.device = device
 
 
 class Compute:
@@ -34,3 +36,7 @@ class Transfer:
     def __str__(self):
         return "Transfer{src:" + str(self.src) + \
             ", dst:" + str(self.dst) + ", size:" + str(self.size) + "}"
+
+class Program:
+    def __init__(self):
+        self.graph = nx.DiGraph()

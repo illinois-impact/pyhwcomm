@@ -2,12 +2,13 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import pyhwcomm.program as pgm
+import pyhwcomm.machine as mchn
 
 class Transform:
     """Transform a graph"""
     pass
 
-class AssignSinks(Transform):
+class OverrideSinks(Transform):
     """Assign sinks to device"""
     def __call__(self, g, dev):
         out = g.copy()
@@ -17,7 +18,7 @@ class AssignSinks(Transform):
         return out
 
 
-class AssignSources(Transform):
+class OverrideSources(Transform):
     """Assign sources to device"""
     def __call__(self, g, dev):
         out = g.copy()

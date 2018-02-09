@@ -2,16 +2,14 @@ from __future__ import absolute_import, print_function
 import networkx as nx
 import pyhwcomm.program as pg
 
+class Component:
+    pass
 
-class Storage:
+class Storage(Component):
     def __init__(self, size):
         self.size = size
-    
-    def size(self):
-        raise NotImplementedError
 
-
-class Processor:
+class Processor(Component):
     def __init__(self):
         pass
 

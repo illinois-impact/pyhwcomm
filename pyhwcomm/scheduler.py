@@ -32,6 +32,15 @@ class TrivialScheduler(Scheduler):
         concrete = p
         return concrete
 
+class SameScheduler(Scheduler):
+    """SameScheduler produces a program that matches the input profile"""
+    def __init__(self):
+        Scheduler.__init__(self)
+
+    def __call__(self, profgram, machine):
+        p = pt.AssignSinks(program, machine)
+        p = pt.AssignSources(program, machine)
+
 class GreedyScheduler(Scheduler):
     """GreedyScheduler assigns everything to the earliest available hardware"""
     def __init__(self):
