@@ -1,29 +1,47 @@
 """This module provide functions that transforming a pycprof profile to a pyhwcomm program""" 
 
+from __future__ import print_function
+from __future__ import absolute_import
+
+import logging
+
 import networkx as nx
 
-import pycprof.profile as cprof
-from pyhwcomm.program import Program, Value
+import pycprof as cprof
+from pyhwcomm.program import Program, Value, Compute
+from pyhwcomm.transforms import InsertImplicitTransfers, RemoveValues
+from pyhwcomm.machine import GPU
 
 def MakeConcrete(profile, machine):
     """MakeConcrete produces a program from the profile with every node assigned to the empirial machine"""
-    assert isinstance(profile, pycprof.profile.Profile)
+    assert isinstance(profile, cprof.profile.Profile)
+
+    mapping = {}
+
+    for node in profile.graph.nodes:
+        if isinstance(node, cprof.dom.Value):
+            location = node.allocation.loc
+            if location.type == "host":
+                component = machine.cpu()[location.id_]
+            elif location.type == "cuda":
+                component = machine.cuda_gpu()[location.id_]
+            else:
+                logging.warning("Unexpected location: " + str(location))
+                component = machine.unknown
+
+            mapping[node] = Value(node.size, component)
+        elif isinstance(node, cprof.dom.API):
+            component = machine.cuda_gpu()[node.device]
+            mapping[node] = Compute(component, run_times = {GPU: 0.0})
 
     out = Program()
-    out.graph = profile.graph.copy()
+    out.graph = nx.relabel_nodes(profile.graph, mapping, copy=True)
 
-    for node in out.nodes:
-        if isinstance(node, cprof.Value):
-            if node.allocation.
-            component = machine.cuda_gpu
+    # Replace Values with Transfers
+    out.graph = InsertImplicitTransfers()(out.graph)
+    out.graph = RemoveValues()(out.graph)
 
-            node = Value(value.size, value.device)
-        programValue = Value(value.size, value.device)
-        out.graph.add_node(programValue)
-        pass
-
-    raise NotImplementedError
-    return nx.DiGraph()
+    return out
 
 def MakeAbstract(profile):
     """MakeAbstract produces a program from the profile with all locations stripped"""

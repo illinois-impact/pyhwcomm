@@ -10,9 +10,9 @@ class Value:
 
 
 class Compute:
-    def __init__(self, device=None):
+    def __init__(self, device=None, run_times={}):
         self.device = device
-        self.known_run_times = {}
+        self.known_run_times = run_times
         self.parameters = None  # flops, reads, threads
 
     def __str__(self):
@@ -20,8 +20,11 @@ class Compute:
 
     def known_run_time(self, processor):
         """returns a known time for a computation to run on a particular processor"""
-        for proc, time in self.known_run_times:
-            if isinstance(proc, processor):
+        for known_proc, time in self.known_run_times:
+            print(processor, known_proc, type(processor))
+            if processor == known_proc:
+                return time
+            elif isinstance(processor, known_proc):
                 return time
         return None
 

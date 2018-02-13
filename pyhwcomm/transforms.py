@@ -49,7 +49,7 @@ class AssignKernels(Transform):
         return out
 
 
-class InsertTransfers(Transform):
+class InsertImplicitTransfers(Transform):
     def __call__(self, g):
         out = g.copy()
         newTxs = []
@@ -70,6 +70,11 @@ class InsertTransfers(Transform):
             out.add_edge(tx, node)
         return out
 
+class InsertAPITransfers(Transform):
+    """InsertAPITransfers inserts any transfers """
+    def __call__(self, g):
+        out = g.copy()
+        newTxs = []
 
 class RemoveValues(Transform):
     """ Remove all Values from a program, and connect predecessors to successors"""

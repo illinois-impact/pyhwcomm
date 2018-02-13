@@ -11,6 +11,16 @@ class Link:
     def latency(self, txSize):
         raise NotImplementedError
 
+class AggregateLink(Link):
+    def __init__(self, links):
+        self.links = links
+
+    def bandwidth(self, txSize):
+        return min(l.bandwidth(txSize) for l in self.links)
+
+    def latency(self, txSize):
+        return sum(l.latency(txSize) for l in self.links)
+
 
 class NVLink(Link):
     def bandwidth(self, txSize):

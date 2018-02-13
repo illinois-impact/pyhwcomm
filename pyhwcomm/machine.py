@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 import networkx as nx
 import pyhwcomm.program as pg
+from pyhwcomm.link import AggregateLink
 
 class Component:
     pass
@@ -20,6 +21,9 @@ class Processor(Component):
         else:
             return 0.0
 
+class Unknown(Processor, Storage):
+    def __init__(self):
+        Storage.__init__(self, Ellipsis)
 
 class CPU(Processor, Storage):
     def __init__(self, device, size):
@@ -64,7 +68,9 @@ class CPUView(MachineView):
 
 class Machine:
     def __init__(self):
+        self.unknown = Unknown()
         self.topology = nx.DiGraph()
+        self.topology.add_node(self.unknown)
 
     def cuda_gpu(self):
         devices = {}
@@ -83,6 +89,9 @@ class Machine:
     def all_paths(self, src, dst):
         return nx.all_simple_paths(self.topology, src, dst)
 
+    def links(self):
+        return self.topology.edges
+
     def execute(self, program):
         time = 0.0
         nodes = nx.topological_sort(program)
@@ -99,3 +108,8 @@ class Machine:
                 print(node)
                 assert False
         return time
+
+    def path_time(self, size, path):
+        links = [self.topology[src][dst]['link'] for src,dst in zip(path[:-1], path[1:])]
+        agg = AggregateLink(links)
+        return agg.latency(size) + size / agg.bandwidth(size)

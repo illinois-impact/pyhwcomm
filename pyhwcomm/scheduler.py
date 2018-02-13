@@ -62,7 +62,7 @@ class GreedyScheduler(Scheduler):
 
                         paths = machine.all_paths(src, dst)
                         for path in paths:
-                            path.
+                            pass
 
                 first_compute = min(computes, key=computes.get)
                 computes[first_compute] += first_compute.time(n)
