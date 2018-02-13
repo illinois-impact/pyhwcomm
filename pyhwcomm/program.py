@@ -20,13 +20,17 @@ class Compute:
 
     def known_run_time(self, processor):
         """returns a known time for a computation to run on a particular processor"""
-        for known_proc, time in self.known_run_times:
-            print(processor, known_proc, type(processor))
+        for known_proc in self.known_run_times:
+            time = self.known_run_times[known_proc]
+            # print(processor, known_proc, type(processor))
             if processor == known_proc:
                 return time
             elif isinstance(processor, known_proc):
                 return time
         return None
+
+    def resources(self):
+        return [self.device]
 
 
 
@@ -39,6 +43,9 @@ class Transfer:
     def __str__(self):
         return "Transfer{src:" + str(self.src) + \
             ", dst:" + str(self.dst) + ", size:" + str(self.size) + "}"
+
+    def resources(self):
+        return [self.src, self.dst]
 
 class Program:
     def __init__(self):

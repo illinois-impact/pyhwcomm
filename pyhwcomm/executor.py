@@ -21,38 +21,67 @@ class ReplayExecutor(Executor):
 
     def __call__(self, program, machine):
 
-        gpu_busy_until = {}
-        link_busy_until = {}
+        busy_until = {}
+        node_completion_times = {}
 
-        print(machine.cuda_gpu())
         cuda_gpus = machine.cuda_gpu()
         for k in cuda_gpus:
             gpu = cuda_gpus[k]
-            gpu_busy_until[gpu] = 0.0
+            busy_until[gpu] = 0.0
         for link in machine.topology.edges:
-            link_busy_until[link] = 0.0
+            busy_until[link] = 0.0
 
         for n in nx.topological_sort(program.graph):
+
+            # print("Working on:", n)
+
+            # get resources used by predecessors
+            preds = list(program.graph.predecessors(n))
+            if len(preds) == 0:
+                preds_ready = 0.0
+                # print("no preds")
+            else:
+                preds_ready = max(node_completion_times[p] for p in preds)
+                # print("preds ready:", preds_ready)
+
+            
+
             if isinstance(n, pgm.Compute):
-                logging.debug("Compute on device", n.device, "was busy until", gpu_busy_until[n.device])
-                gpu_busy_until[n.device] += n.known_run_time(n.device)
-            if isinstance(n, pgm.Transfer):
-                print(n.src, "->", n.dst)
-                paths = [p for p in machine.all_paths(n.src, n.dst)]
-                path = min(machine.all_paths(n.src, n.dst), key=len)
-                print(path)
-                edges = zip(path[:-1], path[1:])
+                all_ready = max(preds_ready, busy_until[n.device])
+                completion_time = all_ready + n.known_run_time(n.device)
+                busy_until[n.device] = completion_time
+                node_completion_times[n] = completion_time
+            elif isinstance(n, pgm.Transfer):
+                all_ready = preds_ready
 
-                busy_until = max(link_busy_until[edge] for edge in edges)
-                tx_time = machine.path_time(n.size, path)
+                # if unknown transfer, 0 time
+                if n.src == machine.unknown or n.dst == machine.unknown:
+                    completion_time = all_ready
+                else:
+                    paths = [p for p in machine.all_paths(n.src, n.dst)]
+                    path = min(machine.all_paths(n.src, n.dst), key=len)
+                    edges = zip(path[:-1], path[1:])
 
-                for edge in path:
-                    link_busy_until[edge] = busy_until + tx_time
+                    for edge in edges:
+                        # print(edge, "busy until", busy_until[edge])
+                        all_ready = max(all_ready, busy_until[edge])
+                    
+                    completion_time = all_ready + machine.path_time(n.size, path)
+
+                    for edge in edges:
+                        # print("e", edge, "now busy until", completion_time)
+                        busy_until[edge] = completion_time
+
+                    if isinstance(n, pgm.Transfer):
+                        print(id(n), ",", all_ready, ",", completion_time-all_ready, ",",n.src, ",",n.dst)
+
+                node_completion_times[n] = completion_time
 
             else:
                 print("Unexpected node:", n)
                 assert False
 
-        gpu_elapsed = max(gpu_busy_until.values())
-        link_elapsed = max(link_busy_until.values())
-        return max(gpu_elapsed, link_elapsed)
+
+
+        elapsed = max(node_completion_times.values())
+        return elapsed

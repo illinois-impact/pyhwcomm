@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function
 import networkx as nx
 import pyhwcomm.program as pg
-from pyhwcomm.link import AggregateLink
+from pyhwcomm.link import AggregateLink, UnknownLink
 
 class Component:
     pass
@@ -29,6 +29,9 @@ class CPU(Processor, Storage):
     def __init__(self, device, size):
         Storage.__init__(self, size)
         self.device = device
+    
+    def __str__(self):
+        return "CPU-" + str(self.device)
 
 
 class GPU(Processor):
@@ -41,6 +44,9 @@ class NVIDIAP100(GPU):
     """An NVIDIA P100 GPU"""
     def __init__(self, device):
         GPU.__init__(self, device)
+
+    def __str__(self):
+        return "NVIDIA-P100-" + str(self.device)
 
 
 class NvidiaTitanXp(GPU):
@@ -86,28 +92,15 @@ class Machine:
                 cpus[node.device] = node
         return cpus
 
+    def add_node(self, n, **attr):
+        self.topology.add_node(n, attr)
+
+    def add_edge(self, src, dst, link):
+        self.topology.add_edge(src, dst, link=link)
+
     def all_paths(self, src, dst):
-        return nx.all_simple_paths(self.topology, src, dst)
-
-    def links(self):
-        return self.topology.edges
-
-    def execute(self, program):
-        time = 0.0
-        nodes = nx.topological_sort(program)
-        for node in nodes:
-            if isinstance(node, pg.Compute):
-                pass
-            elif isinstance(node, pg.Transfer):
-                src = node.src
-                dst = node.dst
-                txSize = node.size
-                link = self.topology[src][dst]['link']
-                time += link.time(txSize)
-            else:
-                print(node)
-                assert False
-        return time
+        paths = list(nx.all_simple_paths(self.topology, src, dst))
+        return paths
 
     def path_time(self, size, path):
         links = [self.topology[src][dst]['link'] for src,dst in zip(path[:-1], path[1:])]

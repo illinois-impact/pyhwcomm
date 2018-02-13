@@ -11,6 +11,10 @@ class Link:
     def latency(self, txSize):
         raise NotImplementedError
 
+class UnknownLink(Link):
+    def time(self, txSize):
+        return 0.0
+
 class AggregateLink(Link):
     def __init__(self, links):
         self.links = links
