@@ -30,9 +30,12 @@ def MakeConcrete(profile, machine):
                 component = machine.unknown
 
             mapping[node] = Value(node.size, component)
+        elif isinstance(node, cprof.dom.CudaLaunch):
+            component = machine.cuda_gpu()[node.device]
+            mapping[node] = Compute(component, run_times = {GPU: (node.kernel_end - node.kernel_start) / 1e9})
         elif isinstance(node, cprof.dom.API):
             component = machine.cuda_gpu()[node.device]
-            mapping[node] = Compute(component, run_times = {GPU: 0.0})
+            mapping[node] = Compute(component, run_times = {GPU: (node.api_end - node.api_start) / 1e9})
 
     out = Program()
     out.graph = nx.relabel_nodes(profile.graph, mapping, copy=True)

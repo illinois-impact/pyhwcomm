@@ -33,7 +33,7 @@ class ReplayExecutor(Executor):
 
         for n in nx.topological_sort(program.graph):
 
-            # print("Working on:", n)
+            # print("Working on:", n, repr(n))
 
             # get resources used by predecessors
             preds = list(program.graph.predecessors(n))
@@ -41,10 +41,10 @@ class ReplayExecutor(Executor):
                 preds_ready = 0.0
                 # print("no preds")
             else:
+                # for p in preds:
+                #     print("pred", p, repr(p))
                 preds_ready = max(node_completion_times[p] for p in preds)
                 # print("preds ready:", preds_ready)
-
-            
 
             if isinstance(n, pgm.Compute):
                 all_ready = max(preds_ready, busy_until[n.device])
@@ -72,10 +72,17 @@ class ReplayExecutor(Executor):
                         # print("e", edge, "now busy until", completion_time)
                         busy_until[edge] = completion_time
 
-                    if isinstance(n, pgm.Transfer):
-                        print(id(n), ",", all_ready, ",", completion_time-all_ready, ",",n.src, ",",n.dst)
-
                 node_completion_times[n] = completion_time
+
+            else:
+                print(n)
+                assert False
+
+            if isinstance(n, pgm.Transfer):
+                print(id(n), ",", all_ready, ",", completion_time-all_ready, ",,,", n.src, ",", n.dst)
+            elif isinstance(n, pgm.Compute):
+                print(id(n), ",,,", all_ready, ",", completion_time-all_ready, ",", n.device, ",")
+
 
             else:
                 print("Unexpected node:", n)

@@ -106,3 +106,8 @@ class Machine:
         links = [self.topology[src][dst]['link'] for src,dst in zip(path[:-1], path[1:])]
         agg = AggregateLink(links)
         return agg.latency(size) + size / agg.bandwidth(size)
+
+def component_type_from_str(s):
+    return {
+        "NvidiaP100": NVIDIAP100
+    }[s]
