@@ -10,10 +10,11 @@ class Value:
 
 
 class Compute:
-    def __init__(self, device=None, run_times={}):
+    def __init__(self, device=None, cprof_api_id=None, run_times={}):
         self.device = device
         self.known_run_times = run_times
         self.parameters = None  # flops, reads, threads
+        self.cprof_api_id = cprof_api_id
 
     def __str__(self):
         return "Compute{device:" + str(self.device) + "}"

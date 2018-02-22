@@ -35,8 +35,9 @@ class ReplayExecutor(Executor):
 
             # print("Working on:", n, repr(n))
 
-            # get resources used by predecessors
+            # Figure out when all predecessors ready
             preds = list(program.graph.predecessors(n))
+            preds_ready = None
             if len(preds) == 0:
                 preds_ready = 0.0
                 # print("no preds")
@@ -46,43 +47,53 @@ class ReplayExecutor(Executor):
                 preds_ready = max(node_completion_times[p] for p in preds)
                 # print("preds ready:", preds_ready)
 
-            if isinstance(n, pgm.Compute):
-                all_ready = max(preds_ready, busy_until[n.device])
-                completion_time = all_ready + n.known_run_time(n.device)
-                busy_until[n.device] = completion_time
-                node_completion_times[n] = completion_time
-            elif isinstance(n, pgm.Transfer):
-                all_ready = preds_ready
 
+            
+
+            if isinstance(n, pgm.Compute):
+                # Figure out when required hardware is ready
+                hardware_ready = busy_until[n.device]
+                # Figure out when everything is ready
+                all_ready = max(preds_ready, hardware_ready)
+                # Figure out when work is done
+                completion_time = all_ready + n.known_run_time(n.device)
+                # mark hardware as busy
+                busy_until[n.device] = completion_time
+            elif isinstance(n, pgm.Transfer):
                 # if unknown transfer, 0 time
                 if n.src == machine.unknown or n.dst == machine.unknown:
-                    completion_time = all_ready
+                    completion_time = preds_ready
                 else:
                     paths = [p for p in machine.all_paths(n.src, n.dst)]
                     path = min(machine.all_paths(n.src, n.dst), key=len)
                     edges = zip(path[:-1], path[1:])
 
+                    # FIXME: handle self-copy
+
+                    hardware_ready = -1
                     for edge in edges:
-                        # print(edge, "busy until", busy_until[edge])
-                        all_ready = max(all_ready, busy_until[edge])
+                        hardware_ready = max(hardware_ready, busy_until[edge])
+
+                    all_ready = max(hardware_ready, preds_ready)
+                    # if preds_ready < hardware_ready:
+                    #     print("preds were done @ ", preds_ready, "but hardware busy until", hardware_ready)
                     
                     completion_time = all_ready + machine.path_time(n.size, path)
 
                     for edge in edges:
                         # print("e", edge, "now busy until", completion_time)
-                        busy_until[edge] = completion_time
-
-                node_completion_times[n] = completion_time
-
+                        busy_until[edge] = completion_time     
             else:
                 print(n)
                 assert False
 
+            node_completion_times[n] = completion_time
+
+
             if isinstance(n, pgm.Transfer):
                 print(id(n), ",", all_ready, ",", completion_time-all_ready, ",,,", n.src, ",", n.dst)
             elif isinstance(n, pgm.Compute):
-                print(id(n), ",,,", all_ready, ",", completion_time-all_ready, ",", n.device, ",")
-
+                print(n.cprof_api_id, ",,,", all_ready, ",", completion_time-all_ready, ",", n.device, ",")
 
             else:
                 print("Unexpected node:", n)
