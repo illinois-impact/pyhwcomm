@@ -7,6 +7,7 @@ import pyhwcomm.program as pgm
 import pyhwcomm.transforms as pt
 # import pyhwcomm.machine as mchn
 
+from events import Trace
 
 class Executor:
     def __init__(self):
@@ -20,6 +21,8 @@ class ReplayExecutor(Executor):
         Executor.__init__(self)
 
     def __call__(self, program, machine):
+
+        trace = Trace("events.json")
 
         busy_until = {}
         node_completion_times = {}
@@ -68,7 +71,8 @@ class ReplayExecutor(Executor):
                     path = min(machine.all_paths(n.src, n.dst), key=len)
                     edges = zip(path[:-1], path[1:])
 
-                    # FIXME: handle self-copy
+                    if edges == []:
+                        assert False
 
                     hardware_ready = -1
                     for edge in edges:
@@ -79,6 +83,7 @@ class ReplayExecutor(Executor):
                     #     print("preds were done @ ", preds_ready, "but hardware busy until", hardware_ready)
                     
                     completion_time = all_ready + machine.path_time(n.size, path)
+                    assert completion_time > all_ready
 
                     for edge in edges:
                         # print("e", edge, "now busy until", completion_time)
@@ -89,12 +94,12 @@ class ReplayExecutor(Executor):
 
             node_completion_times[n] = completion_time
 
-
             if isinstance(n, pgm.Transfer):
-                print(id(n), ",", all_ready, ",", completion_time-all_ready, ",,,", n.src, ",", n.dst)
+                pid = str(n.src)+"_"+str(n.dst)
+                trace.complete_event(id(n), "tx", all_ready*1e9, (completion_time-all_ready)*1e9, pid, "activity")
             elif isinstance(n, pgm.Compute):
-                print(n.cprof_api_id, ",,,", all_ready, ",", completion_time-all_ready, ",", n.device, ",")
-
+                pid = str(n.device)
+                trace.complete_event(n.cprof_api_id, "compute", all_ready*1e9, (completion_time-all_ready)*1e9, pid, "activity")
             else:
                 print("Unexpected node:", n)
                 assert False
@@ -102,4 +107,5 @@ class ReplayExecutor(Executor):
 
 
         elapsed = max(node_completion_times.values())
+        trace.close()
         return elapsed
