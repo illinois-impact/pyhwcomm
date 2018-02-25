@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 from pyhwcomm.machine import CPU, NVIDIAP100, Machine
 from pyhwcomm.link import IBMPower8SmpBus, NVLink
 

@@ -50,9 +50,6 @@ class ReplayExecutor(Executor):
                 preds_ready = max(node_completion_times[p] for p in preds)
                 # print("preds ready:", preds_ready)
 
-
-            
-
             if isinstance(n, pgm.Compute):
                 # Figure out when required hardware is ready
                 hardware_ready = busy_until[n.device]
