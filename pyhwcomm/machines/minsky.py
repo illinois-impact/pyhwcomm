@@ -2,10 +2,11 @@ from __future__ import absolute_import
 from pyhwcomm.machine import CPU, NVIDIAP100, Machine
 from pyhwcomm.link import IBMPower8SmpBus, NVLink
 
-
 class Minsky(Machine):
-    def __init__(self):
+    def __init__(self, gpu_speedup=1.0, comm_speedup=1.0):
         Machine.__init__(self)
+        self.gpu_speedup = float(gpu_speedup)
+        self.comm_speedup = float(comm_speedup)
         self.cpu0 = CPU(0, 256 * 1024 * 1024 * 1024)
         self.cpu1 = CPU(1, 256 * 1024 * 1024 * 1024)
         self.add_edge(self.cpu0, self.cpu1, IBMPower8SmpBus())
@@ -27,3 +28,8 @@ class Minsky(Machine):
         self.add_edge(self.gpu3, self.cpu1, NVLink())
         self.add_edge(self.gpu3, self.gpu2, NVLink())
 
+    def path_time(self, size, path):
+        return Machine.path_time(self, size, path) / self.comm_speedup
+
+    def compute_time(self, compute):
+        return Machine.compute_time(self, compute) / self.gpu_speedup

@@ -59,7 +59,7 @@ class ReplayExecutor(Executor):
                 # Figure out when everything is ready
                 all_ready = max(preds_ready, hardware_ready)
                 # Figure out when work is done
-                completion_time = all_ready + n.known_run_time(n.device)
+                completion_time = all_ready + machine.compute_time(n)
                 # mark hardware as busy
                 busy_until[n.device] = completion_time
             elif isinstance(n, pgm.Transfer):

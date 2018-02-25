@@ -3,6 +3,7 @@ import networkx as nx
 import pyhwcomm.program as pg
 from pyhwcomm.link import AggregateLink, UnknownLink
 
+
 class Component:
     pass
 
@@ -106,6 +107,10 @@ class Machine:
         links = [self.topology[src][dst]['link'] for src,dst in zip(path[:-1], path[1:])]
         agg = AggregateLink(links)
         return agg.latency(size) + size / agg.bandwidth(size)
+
+    def compute_time(self, compute):
+        assert isinstance(compute, pg.Compute)
+        return compute.known_run_time(compute.device)
 
 def component_type_from_str(s):
     return {
