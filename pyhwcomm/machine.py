@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function
 import networkx as nx
 import pyhwcomm.program as pg
-from pyhwcomm.link import AggregateLink, UnknownLink
+from pyhwcomm.link import AggregateLink
 
 
 class Component:
@@ -104,7 +104,7 @@ class Machine:
         return paths
 
     def path_time(self, size, path):
-        links = [self.topology[src][dst]['link'] for src,dst in zip(path[:-1], path[1:])]
+        links = [self.topology[src][dst]['link'] for src, dst in zip(path[:-1], path[1:])]
         agg = AggregateLink(links)
         return agg.latency(size) + size / agg.bandwidth(size)
 

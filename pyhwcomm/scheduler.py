@@ -3,10 +3,10 @@ schedulers take an abstract program and a machine
 and produce a concrete program
 """
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 import networkx as nx
-import pyhwcomm.program as pgm
+# import pyhwcomm.program as pgm
 import pyhwcomm.transforms as pt
 # import pyhwcomm.machine as mchn
 
@@ -47,7 +47,7 @@ class GreedyScheduler(Scheduler):
 
         computes = {}
         engines = {}
-        links = {}
+        # links = {}
         for i, gpu in machine.cuda_gpu():
             computes[gpu] = 0.0
             engines[gpu] = 0.0
@@ -60,9 +60,10 @@ class GreedyScheduler(Scheduler):
 
                         assert isinstance(input_value, pycprof.dom.Value)
 
-                        paths = machine.all_paths(src, dst)
-                        for path in paths:
-                            pass
+                        # paths = machine.all_paths(src, dst)
+                        # for path in paths:
+                        #     pass
 
                 first_compute = min(computes, key=computes.get)
                 computes[first_compute] += first_compute.time(n)
+        return out

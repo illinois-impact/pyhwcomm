@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import pyhwcomm.program as pgm
-import pyhwcomm.machine as mchn
+# import pyhwcomm.machine as mchn
 
 class Transform:
     """Transform a graph"""
@@ -73,8 +73,9 @@ class InsertImplicitTransfers(Transform):
 class InsertAPITransfers(Transform):
     """InsertAPITransfers inserts any transfers """
     def __call__(self, g):
-        out = g.copy()
-        newTxs = []
+        pass
+        # out = g.copy()
+        # newTxs = []
 
 class RemoveValues(Transform):
     """ Remove all Values from a program, and connect predecessors to successors"""

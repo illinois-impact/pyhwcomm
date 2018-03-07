@@ -2,7 +2,7 @@
 
 import ujson as json
 
-from enum import Enum
+# from enum import Enum
 
 class Trace(object):
     def __init__(self, path, epsilon=0.99):
@@ -18,7 +18,7 @@ class Trace(object):
         d = {
             "name": str(name),
             "cat": str(category),
-            "ph": "B", # begin
+            "ph": "B",  # begin
             "ts": float(timestamp),
             "pid": str(pid),
             "tid": str(tid)
@@ -30,7 +30,7 @@ class Trace(object):
         d = {
             "name": str(name),
             "cat": str(category),
-            "ph": "E", # end
+            "ph": "E",  # end
             "ts": float(timestamp),
             "pid": str(pid),
             "tid": str(tid)
@@ -47,7 +47,7 @@ class Trace(object):
             "cat": str(category),
             "ph": "X",
             "ts": float(timestamp),
-            "dur": float(duration_us) * 0.99, # prevent overlaps
+            "dur": float(duration_us) * 0.99,  # prevent overlaps
             "pid": str(pid),
             "tid": str(tid)
         }

@@ -1,10 +1,10 @@
 from __future__ import print_function
 
-import logging
+# import logging
 
 import networkx as nx
 import pyhwcomm.program as pgm
-import pyhwcomm.transforms as pt
+# import pyhwcomm.transforms as pt
 # import pyhwcomm.machine as mchn
 
 from events import Trace
@@ -64,7 +64,7 @@ class ReplayExecutor(Executor):
                 if n.src == machine.unknown or n.dst == machine.unknown:
                     completion_time = preds_ready
                 else:
-                    paths = [p for p in machine.all_paths(n.src, n.dst)]
+                    # paths = [p for p in machine.all_paths(n.src, n.dst)]
                     path = min(machine.all_paths(n.src, n.dst), key=len)
                     edges = zip(path[:-1], path[1:])
 
@@ -92,11 +92,11 @@ class ReplayExecutor(Executor):
             node_completion_times[n] = completion_time
 
             if isinstance(n, pgm.Transfer):
-                pid = str(n.src)+"_"+str(n.dst)
-                trace.complete_event(id(n), "tx", all_ready*1e9, (completion_time-all_ready)*1e9, pid, "activity")
+                pid = str(n.src) + "_" + str(n.dst)
+                trace.complete_event(id(n), "tx", all_ready * 1e9, (completion_time - all_ready) * 1e9, pid, "activity")
             elif isinstance(n, pgm.Compute):
                 pid = str(n.device)
-                trace.complete_event(n.cprof_api_id, "compute", all_ready*1e9, (completion_time-all_ready)*1e9, pid, "activity")
+                trace.complete_event(n.cprof_api_id, "compute", all_ready * 1e9, (completion_time - all_ready) * 1e9, pid, "activity")
             else:
                 print("Unexpected node:", n)
                 assert False

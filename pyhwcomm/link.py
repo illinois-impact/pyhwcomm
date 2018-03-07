@@ -58,7 +58,7 @@ class NvidiaTitanXpLink(Link):
         return 0.0
 
 class IBMPower8SmpBus(Link):
-    def bandwidth(self, txSize): # FIXME: made up
+    def bandwidth(self, txSize):  # FIXME: made up
         return 25.0 * 1024 * 1024 * 1024
     def latency(self, txSize):
         return 0.0
