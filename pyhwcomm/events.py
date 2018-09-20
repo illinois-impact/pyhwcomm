@@ -38,9 +38,7 @@ class Trace(object):
         json.dump(d, self.outfile)
         self.outfile.write(",\n")
 
-    
-
-    def complete_event(self, name, category, timestamp, duration_us, pid, tid):
+    def complete_event(self, component, row, name, category, timestamp, duration_us):
         assert duration_us > 0
         d = {
             "name": str(name),
@@ -48,8 +46,8 @@ class Trace(object):
             "ph": "X",
             "ts": float(timestamp),
             "dur": float(duration_us) * 0.99, # prevent overlaps
-            "pid": str(pid),
-            "tid": str(tid)
+            "pid": str(component),
+            "tid": str(row)
         }
         json.dump(d, self.outfile)
         self.outfile.write(",\n")

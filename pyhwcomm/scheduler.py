@@ -10,7 +10,7 @@ import pyhwcomm.program as pgm
 import pyhwcomm.transforms as pt
 # import pyhwcomm.machine as mchn
 
-import pycprof.dom
+# import pycprof.dom
 
 
 class Scheduler:

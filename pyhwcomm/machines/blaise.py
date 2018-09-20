@@ -9,7 +9,7 @@ from ..link import PCIe3x16, NvidiaTitanXpLink
 class Blaise(Machine):
     """Blaise is a model for the theoretical performance of blaise"""
     def __init__(self):
-        self.topology = nx.DiGraph()
+        super().__init__()
         self.cpu0 = CPU(0, 24 * 1024 * 1024 * 1024)
         self.gpu0 = NvidiaTitanXp(0)
         self.gpu0mem = GDDR5X(12 * 1024 * 1024 * 1024)

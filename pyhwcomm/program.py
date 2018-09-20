@@ -14,24 +14,38 @@ class Compute:
         self.device = device
         self.known_run_times = run_times
         self.parameters = None  # flops, reads, threads
-        self.cprof_api_id = cprof_api_id
 
     def __str__(self):
         return "Compute{device:" + str(self.device) + "}"
 
-    def known_run_time(self, processor):
+    def known_run_time(self, processor_ty):
         """returns a known time for a computation to run on a particular processor"""
-        for known_proc in self.known_run_times:
-            time = self.known_run_times[known_proc]
-            # print(processor, known_proc, type(processor))
-            if processor == known_proc:
-                return time
-            elif isinstance(processor, known_proc):
-                return time
-        return None
+        return self.known_run_times[processor_ty]
 
     def resources(self):
         return [self.device]
+
+
+# A compute node that has parameters we know
+class ParamterizedComputeMixin(object):
+    def __init__(self, f32_ops):
+        self.f32_ops = f32_ops
+
+class ParameterizedTransfer(object):
+    def __init__(self, bytes):
+        self.bytes = bytes
+
+# A program node that occupies one or more devices
+class BoundMixin(object):
+    def __init__(self, devices):
+        self.devices = devices
+
+# A program node for which we have empirical data
+class EmpiricalMixin(object):
+    def __init__(self):
+        self.observed_times = {}
+    def observed(self, component_ty, time):
+        self.observed_times[component_ty] = time
 
 
 

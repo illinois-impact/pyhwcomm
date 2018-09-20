@@ -47,13 +47,14 @@ class NVIDIAP100(GPU):
         GPU.__init__(self, device)
 
     def __str__(self):
-        return "NVIDIA-P100-" + str(self.device)
+        return "Nvidia-P100-" + str(self.device)
 
 
 class NvidiaTitanXp(GPU):
     def __init__(self, device):
         GPU.__init__(self, device)
-
+    def __str__(self):
+        return "Nvidia-TitanXp-" + str(self.device)
 
 class GDDR5X(Storage):
     pass
@@ -110,7 +111,7 @@ class Machine:
 
     def compute_time(self, compute):
         assert isinstance(compute, pg.Compute)
-        return compute.known_run_time(compute.device)
+        return compute.known_run_time(type(compute.device))
 
 def component_type_from_str(s):
     return {

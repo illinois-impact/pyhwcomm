@@ -7,7 +7,7 @@ import pyhwcomm.program as pgm
 import pyhwcomm.transforms as pt
 # import pyhwcomm.machine as mchn
 
-from events import Trace
+from pyhwcomm.events import Trace
 
 class Executor:
     def __init__(self):
@@ -33,10 +33,14 @@ class ReplayExecutor(Executor):
             busy_until[gpu] = 0.0
         for link in machine.topology.edges:
             busy_until[link] = 0.0
+        cpus = machine.cpu()
+        for k in cpus:
+            cpu = cpus[k]
+            busy_until[cpu] = 0.0
 
         for n in nx.topological_sort(program.graph):
 
-            # print("Working on:", n, repr(n))
+            print("Working on:", n, repr(n))
 
             # Figure out when all predecessors ready
             preds = list(program.graph.predecessors(n))
@@ -48,7 +52,7 @@ class ReplayExecutor(Executor):
                 # for p in preds:
                 #     print("pred", p, repr(p))
                 preds_ready = max(node_completion_times[p] for p in preds)
-                # print("preds ready:", preds_ready)
+            print("preds ready:", preds_ready)
 
             if isinstance(n, pgm.Compute):
                 # Figure out when required hardware is ready
@@ -92,11 +96,11 @@ class ReplayExecutor(Executor):
             node_completion_times[n] = completion_time
 
             if isinstance(n, pgm.Transfer):
-                pid = str(n.src)+"_"+str(n.dst)
-                trace.complete_event(id(n), "tx", all_ready*1e9, (completion_time-all_ready)*1e9, pid, "activity")
+                link_name = str(n.src)+"_"+str(n.dst)
+                trace.complete_event(machine, link_name, n, "transfer", all_ready*1e6, (completion_time-all_ready)*1e6)
             elif isinstance(n, pgm.Compute):
                 pid = str(n.device)
-                trace.complete_event(n.cprof_api_id, "compute", all_ready*1e9, (completion_time-all_ready)*1e9, pid, "activity")
+                trace.complete_event(machine, n.device, n, "compute", all_ready*1e6, (completion_time-all_ready)*1e6)
             else:
                 print("Unexpected node:", n)
                 assert False
